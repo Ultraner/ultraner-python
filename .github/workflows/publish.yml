@@ -2,6 +2,8 @@ name: publish
 on:
   release:
     types: [published]
+permissions:
+  id-token: write # OIDC, required for PyPI Trusted Publishing (no token needed)
 jobs:
   publish:
     runs-on: ubuntu-latest
@@ -10,9 +12,6 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.x'
-      - run: pip install build twine
+      - run: pip install build
       - run: python -m build
-      - run: twine upload dist/*
-        env:
-          TWINE_USERNAME: __token__
-          TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
+      - uses: pypa/gh-action-pypi-publish@release/v1
