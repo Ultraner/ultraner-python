@@ -1,0 +1,22 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "ultraner"
+version = "0.1.0"
+description = "Ultraner Python SDK, one API for payments across Africa (mobile money, cards, PayPal, wallets)."
+readme = "README.md"
+requires-python = ">=3.8"
+license = { text = "MIT" }
+authors = [{ name = "Hernatter Limited" }]
+keywords = ["ultraner", "payments", "africa", "mobile money", "mpesa", "mtn momo", "airtel money", "stripe", "paypal"]
+dependencies = []
+
+[project.urls]
+Homepage = "https://ultraner.com/ai"
+Documentation = "https://ultraner.com/docs"
+Source = "https://github.com/ultraner/ultraner-python"
+
+[tool.hatch.build.targets.wheel]
+packages = ["ultraner"]
