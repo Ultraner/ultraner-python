@@ -12,7 +12,7 @@ import urllib.parse
 import urllib.request
 from typing import Any, Optional
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 __all__ = ["Ultraner", "UltranerError"]
 
 
@@ -81,6 +81,21 @@ class _Stripe(_Resource):
         return self._c.request("POST", "/stripe/sessions", body)
 
 
+class _CheckoutSessions(_Resource):
+    def create(self, **body: Any) -> dict:
+        """Mint a one-time, expiring checkout token (Stripe checkout.sessions.create parity)."""
+        return self._c.request("POST", "/v0/checkout/sessions", body)
+
+    def retrieve(self, token: str) -> dict:
+        return self._c.request("GET", f"/v0/pay/resolve/{urllib.parse.quote(token)}")
+
+
+class _Checkout(_Resource):
+    def __init__(self, client: "Ultraner"):
+        super().__init__(client)
+        self.sessions = _CheckoutSessions(client)
+
+
 class Ultraner:
     def __init__(
         self,
@@ -100,6 +115,7 @@ class Ultraner:
         self.escrow = _Escrow(self)
         self.paypal = _PayPal(self)
         self.stripe = _Stripe(self)
+        self.checkout = _Checkout(self)
 
     def request(self, method: str, path: str, body: Optional[dict] = None) -> Any:
         data = json.dumps(body).encode("utf-8") if body is not None else None
@@ -109,7 +125,9 @@ class Ultraner:
             method=method,
             headers={
                 "Content-Type": "application/json",
-                "Authorization": f"Bearer {self.api_key}",
+                # Ultraner API keys authenticate via X-API-Key (Authorization: Bearer
+                # is reserved for user JWTs and would be rejected for a uk_ key).
+                "X-API-Key": self.api_key,
             },
         )
         try:
